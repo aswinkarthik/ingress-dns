@@ -1,3 +1,3 @@
-# Ingress-dns
+# Ingress-dns (Work-In-Progress)
 
-A tool to register an ingress path with its ingress controller in Consul
+A tool to register an ingress host with its ingress controller in Consul
