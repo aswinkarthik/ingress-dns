@@ -40,9 +40,10 @@ func convertToConsulService(bindings []Binding) []ConsulService {
 				Address: address,
 				Tags:    tags,
 			}
+			counter += 1
 		}
 	}
-	return consulServices
+	return consulServices[:counter]
 }
 
 func getTags(hosts []string, serviceDomain string) []string {
