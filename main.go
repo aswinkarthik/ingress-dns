@@ -24,7 +24,8 @@ func main() {
 }
 
 func start(args []string) {
-	fmt.Println(GetServices())
+	fmt.Println(GetProcessableBindings())
+	fmt.Println(GetIngresses())
 	blockForever()
 }
 

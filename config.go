@@ -1,18 +1,21 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	APIKey        string
-	Host          string
-	Port          string
-	Protocol      string
-	SkipTlsVerify bool
+	APIKey         string
+	Host           string
+	Port           string
+	Protocol       string
+	SkipTlsVerify  bool
+	IngressConfigs []IngressConfig
 }
 
 const HTTP = "http"
@@ -26,12 +29,14 @@ func loadConfig() {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 	viper.ReadInConfig()
+
 	appConfig = &Config{
-		APIKey:        getKubernetesAPIToken(),
-		Host:          viper.GetString("KUBERNETES_SERVICE_HOST"),
-		Port:          viper.GetString("KUBERNETES_SERVICE_PORT"),
-		Protocol:      getProtocol(),
-		SkipTlsVerify: viper.GetBool("SKIP_TLS_VERIFY"),
+		APIKey:         getKubernetesAPIToken(),
+		Host:           viper.GetString("KUBERNETES_SERVICE_HOST"),
+		Port:           viper.GetString("KUBERNETES_SERVICE_PORT"),
+		Protocol:       getProtocol(),
+		SkipTlsVerify:  viper.GetBool("SKIP_TLS_VERIFY"),
+		IngressConfigs: getIngressConfigs(),
 	}
 }
 
@@ -53,4 +58,14 @@ func getKubernetesAPIToken() string {
 		return viper.GetString("KUBERNETES_API_TOKEN")
 	}
 	return string(data)
+}
+
+func getIngressConfigs() []IngressConfig {
+	var configs []IngressConfig
+
+	configAsString := viper.GetString("INGRESS_CONFIGS")
+	if err := json.Unmarshal([]byte(configAsString), &configs); err != nil {
+		log.Fatal(err)
+	}
+	return configs
 }

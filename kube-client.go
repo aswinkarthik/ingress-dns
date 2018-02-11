@@ -10,7 +10,7 @@ import (
 )
 
 func GetServices() ServiceList {
-	log.Println("Preparing to Get all services")
+	log.Println("Getting all services")
 	response := request("api/v1/services", http.MethodGet, nil)
 	defer response.Body.Close()
 	var serviceList ServiceList
@@ -18,6 +18,17 @@ func GetServices() ServiceList {
 		log.Fatal(err)
 	}
 	return serviceList
+}
+
+func GetIngresses() IngressList {
+	log.Println("Getting all ingresses")
+	response := request("apis/extensions/v1beta1/ingresses", http.MethodGet, nil)
+	defer response.Body.Close()
+	var ingressList IngressList
+	if err := json.NewDecoder(response.Body).Decode(&ingressList); err != nil {
+		log.Fatal(err)
+	}
+	return ingressList
 }
 
 func request(path string, method string, data io.Reader) *http.Response {

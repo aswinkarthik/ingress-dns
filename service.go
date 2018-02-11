@@ -8,14 +8,8 @@ type ServiceList struct {
 
 type Service struct {
 	Metadata `json:"metadata"`
-	Spec     `json:"spec"`
-}
-
-type Metadata struct {
-	Name string `json:"name"`
-}
-
-type Spec struct {
-	ClusterIP  string `json:"clusterIP"`
-	ExternalIP string `json:"externalIP"`
+	Spec     struct {
+		ClusterIP  string `json:"clusterIP"`
+		ExternalIP string `json:"externalIP"`
+	} `json:"spec"`
 }
