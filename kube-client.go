@@ -48,5 +48,8 @@ func request(path string, method string, data io.Reader) *http.Response {
 	if respErr != nil {
 		log.Fatal(respErr)
 	}
+	if response.StatusCode == 401 {
+		log.Fatal("Cannot authorize to connect to Kubernetes API")
+	}
 	return response
 }

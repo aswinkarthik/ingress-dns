@@ -3,3 +3,4 @@ kubernetes_service_host: localhost
 kubernetes_service_port: 80
 use_https: true
 skip_tls_verify: false
+ingress_conifgs: '[]'
