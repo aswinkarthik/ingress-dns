@@ -10,6 +10,7 @@ type IngressConfig struct {
 type Binding struct {
 	IngressConfig
 	Service
+	Ingress
 }
 
 type IngressList struct {

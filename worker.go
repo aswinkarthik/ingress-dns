@@ -4,14 +4,23 @@ func GetProcessableBindings() []Binding {
 	bindings := make([]Binding, len(appConfig.IngressConfigs))
 
 	counter := 0
-	for _, service := range GetServices().Items {
-		for _, config := range appConfig.IngressConfigs {
-			if config.ControllerService == service.Metadata.Name {
-				bindings[counter] = Binding{config, service}
-				counter += 1
+
+	serviceMap := GetServices().GetServiceMap()
+
+	for _, config := range appConfig.IngressConfigs {
+		if service, present := serviceMap[config.ControllerService]; present {
+			bindings[counter] = Binding{config, service, Ingress{}}
+			counter += 1
+		}
+	}
+	bindings = bindings[:counter]
+	for _, ingress := range GetIngresses().Items {
+		for i, config := range bindings {
+			if ingress.Metadata.ContainsAnnotations(config.Annotation) {
+				bindings[i].Ingress = ingress
 			}
 		}
 	}
 
-	return bindings[:counter]
+	return bindings
 }

@@ -25,7 +25,6 @@ func main() {
 
 func start(args []string) {
 	fmt.Println(GetProcessableBindings())
-	fmt.Println(GetIngresses())
 	blockForever()
 }
 

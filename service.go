@@ -13,3 +13,13 @@ type Service struct {
 		ExternalIP string `json:"externalIP"`
 	} `json:"spec"`
 }
+
+func (s ServiceList) GetServiceMap() map[string]Service {
+	serviceMap := make(map[string]Service, len(s.Items))
+
+	for _, service := range s.Items {
+		serviceMap[service.Metadata.Name] = service
+	}
+
+	return serviceMap
+}
