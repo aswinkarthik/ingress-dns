@@ -3,7 +3,7 @@ kubernetes_service_host: localhost
 kubernetes_service_port: 80
 use_https: true
 skip_tls_verify: false
-ingress_conifgs: '[]'
+ingress_conifgs: '[{"ingress-annotation": {"kubernetes.io/ingress.class": "nginx"}, "ingress-controller-service": "router-nginx-ingress-controller", "ingress-ip": "clusterIP", "name": "external-gateway"}, {"ingress-annotation": {"kubernetes.io/ingress.class": "nginx-internal"}, "ingress-controller-service": "internal-router-nginx-ingress-controller", "ingress-ip": "clusterIP", "name": "internal-gateway"} ]'
 consul_host: localhost
 consul_port: 8500
 consul_domain: service.consul
