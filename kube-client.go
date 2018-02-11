@@ -32,7 +32,7 @@ func GetIngresses() IngressList {
 }
 
 func request(path string, method string, data io.Reader) *http.Response {
-	url := fmt.Sprintf("%s://%s:%s/%s", appConfig.Protocol, appConfig.Host, appConfig.Port, path)
+	url := fmt.Sprintf("%s://%s:%s/%s", appConfig.Protocol, appConfig.KubeHost, appConfig.KubePort, path)
 	client := http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: appConfig.SkipTlsVerify},

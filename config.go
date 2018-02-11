@@ -11,8 +11,8 @@ import (
 
 type Config struct {
 	APIKey         string
-	Host           string
-	Port           string
+	KubeHost       string
+	KubePort       string
 	Protocol       string
 	SkipTlsVerify  bool
 	IngressConfigs []IngressConfig
@@ -32,8 +32,8 @@ func loadConfig() {
 
 	appConfig = &Config{
 		APIKey:         getKubernetesAPIToken(),
-		Host:           viper.GetString("KUBERNETES_SERVICE_HOST"),
-		Port:           viper.GetString("KUBERNETES_SERVICE_PORT"),
+		KubeHost:       viper.GetString("KUBERNETES_SERVICE_HOST"),
+		KubePort:       viper.GetString("KUBERNETES_SERVICE_PORT"),
 		Protocol:       getProtocol(),
 		SkipTlsVerify:  viper.GetBool("SKIP_TLS_VERIFY"),
 		IngressConfigs: getIngressConfigs(),
