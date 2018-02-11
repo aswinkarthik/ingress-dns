@@ -4,3 +4,6 @@ kubernetes_service_port: 80
 use_https: true
 skip_tls_verify: false
 ingress_conifgs: '[]'
+consul_host: localhost
+consul_port: 8500
+consul_domain: service.consul

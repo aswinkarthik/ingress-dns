@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -13,6 +12,9 @@ type Config struct {
 	APIKey         string
 	KubeHost       string
 	KubePort       string
+	ConsulHost     string
+	ConsulPort     string
+	ConsulDomain   string
 	Protocol       string
 	SkipTlsVerify  bool
 	IngressConfigs []IngressConfig
@@ -34,6 +36,9 @@ func loadConfig() {
 		APIKey:         getKubernetesAPIToken(),
 		KubeHost:       viper.GetString("KUBERNETES_SERVICE_HOST"),
 		KubePort:       viper.GetString("KUBERNETES_SERVICE_PORT"),
+		ConsulHost:     viper.GetString("CONSUL_HOST"),
+		ConsulPort:     viper.GetString("CONSUL_PORT"),
+		ConsulDomain:   viper.GetString("CONSUL_DOMAIN"),
 		Protocol:       getProtocol(),
 		SkipTlsVerify:  viper.GetBool("SKIP_TLS_VERIFY"),
 		IngressConfigs: getIngressConfigs(),
@@ -54,7 +59,6 @@ func getKubernetesAPIToken() string {
 	tokenFile := "/var/run/secrets/kubernetes.io/serviceaccount/token"
 	data, err := ioutil.ReadFile(tokenFile)
 	if err != nil {
-		fmt.Println(err)
 		return viper.GetString("KUBERNETES_API_TOKEN")
 	}
 	return string(data)
@@ -68,4 +72,12 @@ func getIngressConfigs() []IngressConfig {
 		log.Fatal(err)
 	}
 	return configs
+}
+
+func getConsulDomain() string {
+	consulDomain := viper.GetString("CONSUL_DOMAIN")
+	if consulDomain == "" {
+		return "service.consul"
+	}
+	return consulDomain
 }

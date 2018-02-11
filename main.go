@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +22,7 @@ func main() {
 }
 
 func start(args []string) {
-	fmt.Println(getBindings())
+	SendToConsul(getBindings())
 	blockForever()
 }
 
