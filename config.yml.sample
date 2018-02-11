@@ -1,0 +1,5 @@
+kubernetes_api_token: my-secret-kubernetes-token
+kubernetes_service_host: localhost
+kubernetes_service_port: 80
+use_https: true
+skip_tls_verify: false
