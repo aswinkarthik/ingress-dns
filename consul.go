@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// ConsulService represents a single object to register a given service to Consul
 type ConsulService struct {
 	ID      string   `json:"ID"`
 	Name    string   `json:"Name"`
@@ -16,6 +17,7 @@ type ConsulService struct {
 	Address string   `json:"Address"`
 }
 
+// SendToConsul Converts the list of Bindings into ConsulService objects and sends them to consul
 func SendToConsul(bindings []Binding) {
 	consulServices := convertToConsulService(bindings)
 	for _, service := range consulServices {
@@ -40,7 +42,7 @@ func convertToConsulService(bindings []Binding) []ConsulService {
 				Address: address,
 				Tags:    tags,
 			}
-			counter += 1
+			counter++
 		}
 	}
 	return consulServices[:counter]
@@ -52,7 +54,7 @@ func getTags(hosts []string, serviceDomain string) []string {
 	for _, host := range hosts {
 		if strings.HasSuffix(host, serviceDomain) {
 			tags[counter] = strings.Replace(host, serviceDomain, "", -1)
-			counter += 1
+			counter++
 		}
 	}
 	return tags[:counter]
