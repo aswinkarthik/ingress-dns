@@ -5,7 +5,6 @@ import (
 )
 
 func main() {
-	loadConfig()
 	startCmd := &cobra.Command{
 		Use:   "start",
 		Short: "Start Ingress-dns in non-daemon mode",
@@ -22,6 +21,7 @@ func main() {
 }
 
 func start(args []string) {
+	loadConfig()
 	SendToConsul(getBindings())
 	blockForever()
 }
