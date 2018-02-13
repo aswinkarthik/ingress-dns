@@ -32,7 +32,7 @@ func convertToConsulService(bindings []Binding) []ConsulService {
 		id := binding.GetId()
 		name := binding.GetName()
 		serviceDomain := fmt.Sprintf(".%s.%s", id, appConfig.ConsulDomain)
-		address := binding.GetIpAddress()
+		address := binding.GetIPAddress()
 		hosts := binding.GetHosts()
 		tags := getTags(hosts, serviceDomain)
 		if len(tags) > 0 && address != "" && id != "" && name != "" {

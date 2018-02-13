@@ -8,10 +8,12 @@ type ServiceList struct {
 
 type Service struct {
 	Metadata `json:"metadata"`
-	Spec     struct {
-		ClusterIP  string `json:"clusterIP"`
-		ExternalIP string `json:"externalIP"`
-	} `json:"spec"`
+	Spec     serviceSpec `json:"spec"`
+}
+
+type serviceSpec struct {
+	ClusterIP  string `json:"clusterIP"`
+	ExternalIP string `json:"externalIP"`
 }
 
 func (s ServiceList) GetServiceMap() map[string]Service {

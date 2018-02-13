@@ -7,6 +7,7 @@ type IngressConfig struct {
 	Name              string            `json:"name"`
 }
 
+// Binding struct binds IngressConfig (user-defined) with an Ingress (Kube resource) and Service (Kube resource)
 type Binding struct {
 	IngressConfig
 	Service
@@ -21,14 +22,21 @@ type IngressList struct {
 
 type Ingress struct {
 	Metadata `json:"metadata"`
-	Spec     struct {
-		Rules []struct {
-			Host string `json:"host"`
-		} `json:"rules"`
-	} `json:"spec"`
+	Spec     ingressSpec `json:"spec"`
 }
 
-func (b Binding) GetIpAddress() string {
+type ingressSpec struct {
+	Rules []ingressRule `json:"rules"`
+}
+
+type ingressRule struct {
+	Host string `json:"host"`
+}
+
+// GetIPAddress returns the IP address of the service based on the IPType
+// A service can either have a clusterIP or externalIP. The method returns approprately
+// If the IngressConfig.IPType is anything other than clusterIP or externalIP empty string is returned
+func (b Binding) GetIPAddress() string {
 	switch b.IngressConfig.IPType {
 	case "clusterIP":
 		return b.Service.Spec.ClusterIP
@@ -39,6 +47,7 @@ func (b Binding) GetIpAddress() string {
 	}
 }
 
+// GetHosts returns the list of hosts configured in the binding's Ingress resource's rules
 func (b Binding) GetHosts() []string {
 	rules := b.Ingress.Spec.Rules
 	hosts := make([]string, len(rules))
@@ -48,10 +57,12 @@ func (b Binding) GetHosts() []string {
 	return hosts
 }
 
+// GetId returns the name of the user provided ingress configurations
 func (b Binding) GetId() string {
 	return b.IngressConfig.Name
 }
 
+// GetId returns the name of the user provided ingress configurations
 func (b Binding) GetName() string {
 	return b.IngressConfig.Name
 }
