@@ -2,6 +2,8 @@
 
 A tool to register an ingress host with its ingress controller in Consul
 
+[![Build Status](https://travis-ci.org/aswinkarthik93/ingress-dns.svg?branch=master)](https://travis-ci.org/aswinkarthik93/ingress-dns)
+
 ## Overview
 
 - `IngressController`s are used to route incoming traffic based on `rules` defined as `Ingress` resources.
