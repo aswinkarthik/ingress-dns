@@ -6,8 +6,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 )
+
+var hostRegexPattern *regexp.Regexp
+
+func init() {
+	hostRegexPattern, _ = regexp.Compile("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$")
+}
 
 // ConsulService represents a single object to register a given service to Consul
 type ConsulService struct {
@@ -48,12 +55,26 @@ func convertToConsulService(bindings []Binding) []ConsulService {
 	return consulServices[:counter]
 }
 
-func getTags(hosts []string, serviceDomain string) []string {
+func groupBindings(bindings []Binding) map[string][]Binding {
+	groupedBindings := make(map[string][]Binding, len(bindings))
+
+	for _, binding := range bindings {
+		existingBindings := groupedBindings[binding.IngressConfig.Name]
+		updatedBindings := append(existingBindings, binding)
+		groupedBindings[binding.IngressConfig.Name] = updatedBindings
+	}
+
+	return groupedBindings
+}
+
+// getTags returns all the valid hosts as Tags after removing the parent domain
+func getTags(hosts []string, parentDomain string) []string {
 	tags := make([]string, len(hosts))
 	counter := 0
 	for _, host := range hosts {
-		if strings.HasSuffix(host, serviceDomain) {
-			tags[counter] = strings.Replace(host, serviceDomain, "", -1)
+		validHost := hostRegexPattern.MatchString(host)
+		if validHost && strings.HasSuffix(host, parentDomain) {
+			tags[counter] = strings.Replace(host, parentDomain, "", -1)
 			counter++
 		}
 	}
