@@ -31,13 +31,13 @@ func blockForever() {
 }
 
 func getBindings() []Binding {
-	bindings := make([]Binding, len(appConfig.IngressConfigs))
+	bindings := make([]Binding, len(appConfig.UserConfigs))
 
 	counter := 0
 
 	serviceMap := GetServices().GetServiceMap()
 
-	for _, config := range appConfig.IngressConfigs {
+	for _, config := range appConfig.UserConfigs {
 		if service, present := serviceMap[config.ControllerService]; present {
 			bindings[counter] = Binding{config, service, Ingress{}}
 			counter += 1

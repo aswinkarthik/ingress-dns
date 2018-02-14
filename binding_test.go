@@ -8,7 +8,7 @@ import (
 
 func TestGetIPAddressReturnsClusterIP(t *testing.T) {
 	binding := &Binding{
-		IngressConfig: IngressConfig{
+		UserConfig: UserConfig{
 			IPType: "clusterIP",
 		},
 		Service: Service{
@@ -23,7 +23,7 @@ func TestGetIPAddressReturnsClusterIP(t *testing.T) {
 
 func TestGetIPAddressReturnsExternalIP(t *testing.T) {
 	binding := &Binding{
-		IngressConfig: IngressConfig{
+		UserConfig: UserConfig{
 			IPType: "externalIP",
 		},
 		Service: Service{
@@ -38,7 +38,7 @@ func TestGetIPAddressReturnsExternalIP(t *testing.T) {
 
 func TestGetIPAddressReturnsEmptyString(t *testing.T) {
 	binding := &Binding{
-		IngressConfig: IngressConfig{
+		UserConfig: UserConfig{
 			IPType: "loadBalancerIP",
 		},
 		Service: Service{
@@ -53,7 +53,7 @@ func TestGetIPAddressReturnsEmptyString(t *testing.T) {
 
 func TestGetIdAndName(t *testing.T) {
 	binding := &Binding{
-		IngressConfig: IngressConfig{
+		UserConfig: UserConfig{
 			Name: "user-defined-name",
 		},
 	}

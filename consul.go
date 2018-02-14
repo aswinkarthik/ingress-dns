@@ -59,9 +59,9 @@ func groupBindings(bindings []Binding) map[string][]Binding {
 	groupedBindings := make(map[string][]Binding, len(bindings))
 
 	for _, binding := range bindings {
-		existingBindings := groupedBindings[binding.IngressConfig.Name]
+		existingBindings := groupedBindings[binding.UserConfig.Name]
 		updatedBindings := append(existingBindings, binding)
-		groupedBindings[binding.IngressConfig.Name] = updatedBindings
+		groupedBindings[binding.UserConfig.Name] = updatedBindings
 	}
 
 	return groupedBindings

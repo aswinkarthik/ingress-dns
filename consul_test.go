@@ -8,7 +8,7 @@ import (
 
 func TestGroupBindings(t *testing.T) {
 	binding1 := Binding{
-		IngressConfig: IngressConfig{
+		UserConfig: UserConfig{
 			Name:   "nginx-internal",
 			IPType: "internalIP",
 		},
@@ -26,7 +26,7 @@ func TestGroupBindings(t *testing.T) {
 		},
 	}
 	binding2 := Binding{
-		IngressConfig: IngressConfig{
+		UserConfig: UserConfig{
 			Name:   "nginx-internal",
 			IPType: "internalIP",
 		},
@@ -43,7 +43,7 @@ func TestGroupBindings(t *testing.T) {
 		},
 	}
 	binding3 := Binding{
-		IngressConfig: IngressConfig{
+		UserConfig: UserConfig{
 			Name:   "nginx-external",
 			IPType: "externalIP",
 		},
