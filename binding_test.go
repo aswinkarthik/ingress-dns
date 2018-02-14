@@ -6,6 +6,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewBindings(t *testing.T) {
+	services := []Service{
+		Service{Metadata: Metadata{Name: "constroller-service-a"}},
+	}
+
+	controllerAnnotation := make(map[string]string)
+
+	ingresses := []Ingress{
+		Ingress{Metadata: Metadata{Annotations: controllerAnnotation}},
+	}
+
+	userConfigs := []UserConfig{
+		UserConfig{Name: "config-a", IPType: "clusterIP", ControllerService: "controller-service-a", Annotation: controllerAnnotation},
+	}
+
+	expectedBindings := []Binding{}
+
+	assert.Equal(t, expectedBindings, NewBindings(services, ingresses, userConfigs))
+}
+
 func TestGetIPAddressReturnsClusterIP(t *testing.T) {
 	binding := &Binding{
 		UserConfig: UserConfig{

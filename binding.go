@@ -7,6 +7,10 @@ type Binding struct {
 	Ingress
 }
 
+func NewBindings(services []Service, ingresses []Ingress, userConfigs []UserConfig) []Binding {
+	return []Binding{}
+}
+
 // GetIPAddress returns the IP address of the service based on the IPType
 // A service can either have a clusterIP or externalIP. The method returns approprately
 // If the IngressConfig.IPType is anything other than clusterIP or externalIP empty string is returned
