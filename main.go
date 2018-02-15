@@ -35,7 +35,7 @@ func getBindings() []Binding {
 
 	counter := 0
 
-	serviceMap := GetServices().GetServiceMap()
+	serviceMap := client.GetServices().GetServiceMap()
 
 	for _, config := range appConfig.UserConfigs {
 		if service, present := serviceMap[config.ControllerService]; present {
@@ -44,7 +44,7 @@ func getBindings() []Binding {
 		}
 	}
 	bindings = bindings[:counter]
-	for _, ingress := range GetIngresses().Items {
+	for _, ingress := range client.GetIngresses().Items {
 		for i, config := range bindings {
 			if ingress.Metadata.ContainsAnnotations(config.Annotation) {
 				bindings[i].Ingress = ingress

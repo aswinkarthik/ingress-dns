@@ -13,6 +13,8 @@ type BindingV2 struct {
 	Ingresses []Ingress
 }
 
+// NewBindings takes in ServiceList, IngressList, []UserConfig and creates a Binding
+// Binding has all 3 grouped appropriately
 func NewBindings(serviceList ServiceList, ingressList IngressList, userConfigs []UserConfig) []BindingV2 {
 	serviceMap := serviceList.GetServiceMap()
 	ingresses := ingressList.Items

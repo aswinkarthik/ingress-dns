@@ -34,14 +34,17 @@ func loadConfig() {
 
 	appConfig = &Config{
 		APIKey:        getKubernetesAPIToken(),
-		KubeHost:      viper.GetString("KUBERNETES_SERVICE_HOST"),
-		KubePort:      viper.GetString("KUBERNETES_SERVICE_PORT"),
 		ConsulHost:    viper.GetString("CONSUL_HOST"),
 		ConsulPort:    viper.GetString("CONSUL_PORT"),
 		ConsulDomain:  viper.GetString("CONSUL_DOMAIN"),
-		Protocol:      getProtocol(),
 		SkipTlsVerify: viper.GetBool("SKIP_TLS_VERIFY"),
 		UserConfigs:   getIngressConfigs(),
+	}
+
+	client = &kubeClient{
+		host:     viper.GetString("KUBERNETES_SERVICE_HOST"),
+		port:     viper.GetString("KUBERNETES_SERVICE_PORT"),
+		protocol: getProtocol(),
 	}
 }
 

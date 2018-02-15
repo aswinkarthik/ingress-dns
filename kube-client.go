@@ -9,9 +9,17 @@ import (
 	"net/http"
 )
 
-func GetServices() ServiceList {
+type kubeClient struct {
+	host     string
+	port     string
+	protocol string
+}
+
+var client *kubeClient
+
+func (k *kubeClient) GetServices() ServiceList {
 	log.Println("Getting all services")
-	response := request("api/v1/services", http.MethodGet, nil)
+	response := k.request("api/v1/services", http.MethodGet, nil)
 	defer response.Body.Close()
 	var serviceList ServiceList
 	if err := json.NewDecoder(response.Body).Decode(&serviceList); err != nil {
@@ -20,9 +28,9 @@ func GetServices() ServiceList {
 	return serviceList
 }
 
-func GetIngresses() IngressList {
+func (k *kubeClient) GetIngresses() IngressList {
 	log.Println("Getting all ingresses")
-	response := request("apis/extensions/v1beta1/ingresses", http.MethodGet, nil)
+	response := k.request("apis/extensions/v1beta1/ingresses", http.MethodGet, nil)
 	defer response.Body.Close()
 	var ingressList IngressList
 	if err := json.NewDecoder(response.Body).Decode(&ingressList); err != nil {
@@ -31,8 +39,8 @@ func GetIngresses() IngressList {
 	return ingressList
 }
 
-func request(path string, method string, data io.Reader) *http.Response {
-	url := fmt.Sprintf("%s://%s:%s/%s", appConfig.Protocol, appConfig.KubeHost, appConfig.KubePort, path)
+func (k *kubeClient) request(path string, method string, data io.Reader) *http.Response {
+	url := fmt.Sprintf("%s://%s:%s/%s", k.protocol, k.host, k.port, path)
 	client := http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: appConfig.SkipTlsVerify},
