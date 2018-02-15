@@ -7,23 +7,27 @@ import (
 )
 
 func TestNewBindings(t *testing.T) {
-	services := []Service{
-		Service{Metadata: Metadata{Name: "constroller-service-a"}},
-	}
+	service1 := Service{Metadata: Metadata{Name: "controller-service-a"}}
+	services := []Service{service1}
+	serviceList := ServiceList{Items: services}
 
 	controllerAnnotation := make(map[string]string)
+	controllerAnnotation["my-annotation"] = "value"
 
-	ingresses := []Ingress{
-		Ingress{Metadata: Metadata{Annotations: controllerAnnotation}},
-	}
+	differentAnnotation := make(map[string]string)
+	differentAnnotation["my-annotation"] = "different"
 
-	userConfigs := []UserConfig{
-		UserConfig{Name: "config-a", IPType: "clusterIP", ControllerService: "controller-service-a", Annotation: controllerAnnotation},
-	}
+	ingress1 := Ingress{Metadata: Metadata{Annotations: controllerAnnotation}}
+	ingress2 := Ingress{Metadata: Metadata{Annotations: differentAnnotation}}
+	ingresses := []Ingress{ingress1, ingress2}
+	ingressList := IngressList{Items: ingresses}
 
-	expectedBindings := []Binding{}
+	userConfig1 := UserConfig{Name: "config-a", IPType: "clusterIP", ControllerService: "controller-service-a", Annotation: controllerAnnotation}
+	userConfigs := []UserConfig{userConfig1}
 
-	assert.Equal(t, expectedBindings, NewBindings(services, ingresses, userConfigs))
+	expectedBindings := []BindingV2{BindingV2{UserConfig: userConfig1, Service: service1, Ingresses: []Ingress{ingress1}}}
+
+	assert.Equal(t, expectedBindings, NewBindings(serviceList, ingressList, userConfigs))
 }
 
 func TestGetIPAddressReturnsClusterIP(t *testing.T) {

@@ -7,8 +7,30 @@ type Binding struct {
 	Ingress
 }
 
-func NewBindings(services []Service, ingresses []Ingress, userConfigs []UserConfig) []Binding {
-	return []Binding{}
+type BindingV2 struct {
+	UserConfig
+	Service
+	Ingresses []Ingress
+}
+
+func NewBindings(serviceList ServiceList, ingressList IngressList, userConfigs []UserConfig) []BindingV2 {
+	serviceMap := serviceList.GetServiceMap()
+	ingresses := ingressList.Items
+	finalBindings := make([]BindingV2, len(userConfigs))
+
+	for i, config := range userConfigs {
+		controllerService := serviceMap[config.ControllerService]
+		ingressesForConfig := make([]Ingress, len(ingresses))
+		ingressCount := 0
+		for _, ingress := range ingressList.Items {
+			if ingress.ContainsAnnotations(config.Annotation) {
+				ingressesForConfig[ingressCount] = ingress
+				ingressCount++
+			}
+		}
+		finalBindings[i] = BindingV2{config, controllerService, ingressesForConfig[:ingressCount]}
+	}
+	return finalBindings
 }
 
 // GetIPAddress returns the IP address of the service based on the IPType
