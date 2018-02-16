@@ -23,6 +23,7 @@ type Config struct {
 const HTTP = "http"
 const HTTPS = "https"
 
+var debugEnabled bool
 var appConfig *Config
 
 func loadConfig() {
@@ -38,12 +39,18 @@ func loadConfig() {
 		ConsulPort:    viper.GetString("CONSUL_PORT"),
 		ConsulDomain:  viper.GetString("CONSUL_DOMAIN"),
 		SkipTlsVerify: viper.GetBool("SKIP_TLS_VERIFY"),
+		KubeHost:      viper.GetString("KUBERNETES_SERVICE_HOST"),
+		KubePort:      viper.GetString("KUBERNETES_SERVICE_PORT"),
 		UserConfigs:   getIngressConfigs(),
 	}
 
+	if debugEnabled {
+		prettyPrint(appConfig)
+	}
+
 	client = &kubeClient{
-		host:     viper.GetString("KUBERNETES_SERVICE_HOST"),
-		port:     viper.GetString("KUBERNETES_SERVICE_PORT"),
+		host:     appConfig.KubeHost,
+		port:     appConfig.KubePort,
 		protocol: getProtocol(),
 	}
 }
@@ -71,9 +78,18 @@ func getIngressConfigs() []UserConfig {
 	var configs []UserConfig
 
 	configAsString := viper.GetString("USER_CONFIGS")
+	if configAsString == "" {
+		configAsString = "[]"
+	}
+
 	if err := json.Unmarshal([]byte(configAsString), &configs); err != nil {
 		log.Fatal(err)
 	}
+
+	if debugEnabled {
+		prettyPrint(configs)
+	}
+
 	return configs
 }
 

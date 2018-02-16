@@ -1,7 +1,10 @@
 package main
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -16,41 +19,27 @@ func main() {
 	rootCmd := &cobra.Command{
 		Use: "ingress-dns",
 	}
+	rootCmd.PersistentFlags().BoolVar(&debugEnabled, "debug", false, "Enable debug mode")
 	rootCmd.AddCommand(startCmd)
 	rootCmd.Execute()
 }
 
 func start(args []string) {
 	loadConfig()
-	SendToConsul(getBindings())
+
 	blockForever()
 }
 
 func blockForever() {
-	select {}
-}
+	//select {}
 
-func getBindings() []Binding {
-	bindings := make([]Binding, len(appConfig.UserConfigs))
-
-	counter := 0
-
-	serviceMap := client.GetServices().GetServiceMap()
-
-	for _, config := range appConfig.UserConfigs {
-		if service, present := serviceMap[config.ControllerService]; present {
-			bindings[counter] = Binding{config, service, Ingress{}}
-			counter += 1
-		}
-	}
-	bindings = bindings[:counter]
-	for _, ingress := range client.GetIngresses().Items {
-		for i, config := range bindings {
-			if ingress.Metadata.ContainsAnnotations(config.Annotation) {
-				bindings[i].Ingress = ingress
-			}
-		}
+	interval := viper.GetInt("CHECK_INTERVAL")
+	if interval < 1 {
+		interval = 5
 	}
 
-	return bindings
+	ticker := time.NewTicker(time.Second * time.Duration(interval))
+	for _ = range ticker.C {
+		runWorker()
+	}
 }
