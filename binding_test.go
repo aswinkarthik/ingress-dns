@@ -31,7 +31,7 @@ func TestNewBindings(t *testing.T) {
 }
 
 func TestGetIPAddressReturnsClusterIP(t *testing.T) {
-	binding := &Binding{
+	binding := &BindingV2{
 		UserConfig: UserConfig{
 			IPType: "clusterIP",
 		},
@@ -45,8 +45,52 @@ func TestGetIPAddressReturnsClusterIP(t *testing.T) {
 	assert.Equal(t, binding.GetIPAddress(), "10.7.0.1")
 }
 
+func TestGetConsulDto(t *testing.T) {
+	clusterIP := "10.11.20.4"
+	externalIP := "31.154.22.10"
+	service1 := Service{
+		Metadata: Metadata{Name: "gateway"},
+		Spec:     serviceSpec{ClusterIP: clusterIP, ExternalIP: externalIP},
+	}
+
+	annotation := make(map[string]string)
+	annotation["kubernetes.io/ingress.class"] = "nginx"
+
+	ingress1 := Ingress{
+		Metadata: Metadata{Annotations: annotation},
+		Spec: ingressSpec{
+			Rules: []ingressRule{
+				ingressRule{Host: "payment-service.gateway.service.consul"},
+				ingressRule{Host: "availability-service.gateway.service.consul"},
+				ingressRule{Host: "invalid-service.gateway.service.com"},
+			},
+		},
+	}
+	ingress2 := Ingress{
+		Metadata: Metadata{Annotations: annotation},
+		Spec: ingressSpec{
+			Rules: []ingressRule{
+				ingressRule{Host: "login-service.gateway.service.consul"},
+				ingressRule{Host: "rating-service.gateway.service.consul"},
+			},
+		},
+	}
+	userConfig1 := UserConfig{Name: "config-a", IPType: "clusterIP", ControllerService: "gateway", Annotation: annotation}
+
+	binding := BindingV2{UserConfig: userConfig1, Service: service1, Ingresses: []Ingress{ingress1, ingress2}}
+
+	actual := binding.GetConsulDto()
+	expected := ConsulDto{
+		ID:      "gateway",
+		Name:    "gateway",
+		Tags:    []string{"payment-service", "availability-service", "login-service", "rating-service"},
+		Address: clusterIP,
+	}
+	assert.Equal(t, expected, actual)
+}
+
 func TestGetIPAddressReturnsExternalIP(t *testing.T) {
-	binding := &Binding{
+	binding := &BindingV2{
 		UserConfig: UserConfig{
 			IPType: "externalIP",
 		},
@@ -61,7 +105,7 @@ func TestGetIPAddressReturnsExternalIP(t *testing.T) {
 }
 
 func TestGetIPAddressReturnsEmptyString(t *testing.T) {
-	binding := &Binding{
+	binding := &BindingV2{
 		UserConfig: UserConfig{
 			IPType: "loadBalancerIP",
 		},
@@ -75,27 +119,23 @@ func TestGetIPAddressReturnsEmptyString(t *testing.T) {
 	assert.Equal(t, binding.GetIPAddress(), "")
 }
 
-func TestGetIdAndName(t *testing.T) {
-	binding := &Binding{
-		UserConfig: UserConfig{
-			Name: "user-defined-name",
-		},
-	}
+func TestIsValidHost(t *testing.T) {
+	baseDomain := ".base.domain"
 
-	assert.Equal(t, binding.GetId(), "user-defined-name")
-	assert.Equal(t, binding.GetName(), "user-defined-name")
+	validHost := isValidHost("valid.host.base.domain", baseDomain)
+	assert.Equal(t, true, validHost)
+
+	differentDomainHost := isValidHost("invalid.host.different.domain", baseDomain)
+	assert.Equal(t, false, differentDomainHost)
+
+	invalidDns := isValidHost("invalid_Dns.host.base.domain", baseDomain)
+	assert.Equal(t, false, invalidDns)
 }
 
-func TestGetHosts(t *testing.T) {
-	binding := &Binding{
-		Ingress: Ingress{
-			Spec: ingressSpec{
-				Rules: []ingressRule{
-					ingressRule{Host: "abc.com"},
-				},
-			},
-		},
-	}
+func TestGetTag(t *testing.T) {
+	baseDomain := ".base.domain"
 
-	assert.Equal(t, binding.GetHosts(), []string{"abc.com"})
+	tag := getTag("valid.host.base.domain", baseDomain)
+
+	assert.Equal(t, "valid.host", tag)
 }

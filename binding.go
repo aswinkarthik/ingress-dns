@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
+
 // Binding struct binds IngressConfig (user-defined) with an Ingress (Kube resource) and Service (Kube resource)
 type Binding struct {
 	UserConfig
@@ -11,6 +17,10 @@ type BindingV2 struct {
 	UserConfig
 	Service
 	Ingresses []Ingress
+}
+
+func init() {
+	hostRegexPattern, _ = regexp.Compile("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$")
 }
 
 // NewBindings takes in ServiceList, IngressList, []UserConfig and creates a Binding
@@ -38,7 +48,7 @@ func NewBindings(serviceList ServiceList, ingressList IngressList, userConfigs [
 // GetIPAddress returns the IP address of the service based on the IPType
 // A service can either have a clusterIP or externalIP. The method returns approprately
 // If the IngressConfig.IPType is anything other than clusterIP or externalIP empty string is returned
-func (b Binding) GetIPAddress() string {
+func (b *BindingV2) GetIPAddress() string {
 	switch b.UserConfig.IPType {
 	case "clusterIP":
 		return b.Service.Spec.ClusterIP
@@ -49,22 +59,49 @@ func (b Binding) GetIPAddress() string {
 	}
 }
 
-// GetHosts returns the list of hosts configured in the binding's Ingress resource's rules
-func (b Binding) GetHosts() []string {
-	rules := b.Ingress.Spec.Rules
-	hosts := make([]string, len(rules))
-	for i, rule := range rules {
-		hosts[i] = rule.Host
+func (b *BindingV2) getHosts() []string {
+	sum := 0
+	for _, ingress := range b.Ingresses {
+		sum += len(ingress.Spec.Rules)
 	}
-	return hosts
+
+	hosts := make([]string, sum)
+	counter := 0
+	for _, ingress := range b.Ingresses {
+		for _, rule := range ingress.Spec.Rules {
+			hosts[counter] = rule.Host
+			counter++
+		}
+	}
+	return hosts[:counter]
 }
 
-// GetId returns the name of the user provided ingress configurations
-func (b Binding) GetId() string {
-	return b.UserConfig.Name
+// GetConsulDto converts a Binding object to a struct that can be PUT to consul HTTP Service
+func (b *BindingV2) GetConsulDto() ConsulDto {
+	domain := fmt.Sprintf(".%s.%s", b.Service.Metadata.Name, appConfig.ConsulDomain)
+	hosts := b.getHosts()
+	tags := make([]string, len(hosts))
+	counter := 0
+	for _, host := range hosts {
+		if isValidHost(host, domain) {
+			tags[counter] = getTag(host, domain)
+			counter++
+		}
+	}
+	return ConsulDto{
+		ID:      b.Service.Metadata.Name,
+		Name:    b.Service.Metadata.Name,
+		Tags:    tags[:counter],
+		Address: b.GetIPAddress(),
+	}
 }
 
-// GetId returns the name of the user provided ingress configurations
-func (b Binding) GetName() string {
-	return b.UserConfig.Name
+func isValidHost(host string, domain string) bool {
+	validHost := hostRegexPattern.MatchString(host)
+	hasSameDomain := strings.HasSuffix(host, domain)
+	return validHost && hasSameDomain
+}
+
+func getTag(host string, domain string) string {
+	return strings.Replace(host, domain, "", -1)
 }

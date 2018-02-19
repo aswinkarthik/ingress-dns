@@ -25,8 +25,6 @@ func main() {
 }
 
 func start(args []string) {
-	loadConfig()
-
 	blockForever()
 }
 

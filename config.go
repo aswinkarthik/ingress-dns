@@ -26,6 +26,10 @@ const HTTPS = "https"
 var debugEnabled bool
 var appConfig *Config
 
+func init() {
+	loadConfig()
+}
+
 func loadConfig() {
 	viper.AutomaticEnv()
 	viper.SetConfigName("config")
