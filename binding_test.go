@@ -25,13 +25,13 @@ func TestNewBindings(t *testing.T) {
 	userConfig1 := UserConfig{Name: "config-a", IPType: "clusterIP", ControllerService: "controller-service-a", Annotation: controllerAnnotation}
 	userConfigs := []UserConfig{userConfig1}
 
-	expectedBindings := []BindingV2{BindingV2{UserConfig: userConfig1, Service: service1, Ingresses: []Ingress{ingress1}}}
+	expectedBindings := []Binding{Binding{UserConfig: userConfig1, Service: service1, Ingresses: []Ingress{ingress1}}}
 
 	assert.Equal(t, expectedBindings, NewBindings(serviceList, ingressList, userConfigs))
 }
 
 func TestGetIPAddressReturnsClusterIP(t *testing.T) {
-	binding := &BindingV2{
+	binding := &Binding{
 		UserConfig: UserConfig{
 			IPType: "clusterIP",
 		},
@@ -77,7 +77,7 @@ func TestGetConsulDto(t *testing.T) {
 	}
 	userConfig1 := UserConfig{Name: "config-a", IPType: "clusterIP", ControllerService: "gateway", Annotation: annotation}
 
-	binding := BindingV2{UserConfig: userConfig1, Service: service1, Ingresses: []Ingress{ingress1, ingress2}}
+	binding := Binding{UserConfig: userConfig1, Service: service1, Ingresses: []Ingress{ingress1, ingress2}}
 
 	actual := binding.GetConsulDto()
 	expected := ConsulDto{
@@ -90,7 +90,7 @@ func TestGetConsulDto(t *testing.T) {
 }
 
 func TestGetIPAddressReturnsExternalIP(t *testing.T) {
-	binding := &BindingV2{
+	binding := &Binding{
 		UserConfig: UserConfig{
 			IPType: "externalIP",
 		},
@@ -105,7 +105,7 @@ func TestGetIPAddressReturnsExternalIP(t *testing.T) {
 }
 
 func TestGetIPAddressReturnsEmptyString(t *testing.T) {
-	binding := &BindingV2{
+	binding := &Binding{
 		UserConfig: UserConfig{
 			IPType: "loadBalancerIP",
 		},

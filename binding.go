@@ -6,14 +6,7 @@ import (
 	"strings"
 )
 
-// Binding struct binds IngressConfig (user-defined) with an Ingress (Kube resource) and Service (Kube resource)
 type Binding struct {
-	UserConfig
-	Service
-	Ingress
-}
-
-type BindingV2 struct {
 	UserConfig
 	Service
 	Ingresses []Ingress
@@ -25,10 +18,10 @@ func init() {
 
 // NewBindings takes in ServiceList, IngressList, []UserConfig and creates a Binding
 // Binding has all 3 grouped appropriately
-func NewBindings(serviceList ServiceList, ingressList IngressList, userConfigs []UserConfig) []BindingV2 {
+func NewBindings(serviceList ServiceList, ingressList IngressList, userConfigs []UserConfig) []Binding {
 	serviceMap := serviceList.GetServiceMap()
 	ingresses := ingressList.Items
-	finalBindings := make([]BindingV2, len(userConfigs))
+	finalBindings := make([]Binding, len(userConfigs))
 
 	for i, config := range userConfigs {
 		controllerService := serviceMap[config.ControllerService]
@@ -40,7 +33,7 @@ func NewBindings(serviceList ServiceList, ingressList IngressList, userConfigs [
 				ingressCount++
 			}
 		}
-		finalBindings[i] = BindingV2{config, controllerService, ingressesForConfig[:ingressCount]}
+		finalBindings[i] = Binding{config, controllerService, ingressesForConfig[:ingressCount]}
 	}
 	return finalBindings
 }
@@ -48,7 +41,7 @@ func NewBindings(serviceList ServiceList, ingressList IngressList, userConfigs [
 // GetIPAddress returns the IP address of the service based on the IPType
 // A service can either have a clusterIP or externalIP. The method returns approprately
 // If the IngressConfig.IPType is anything other than clusterIP or externalIP empty string is returned
-func (b *BindingV2) GetIPAddress() string {
+func (b *Binding) GetIPAddress() string {
 	switch b.UserConfig.IPType {
 	case "clusterIP":
 		return b.Service.Spec.ClusterIP
@@ -59,7 +52,7 @@ func (b *BindingV2) GetIPAddress() string {
 	}
 }
 
-func (b *BindingV2) getHosts() []string {
+func (b *Binding) getHosts() []string {
 	sum := 0
 	for _, ingress := range b.Ingresses {
 		sum += len(ingress.Spec.Rules)
@@ -77,7 +70,7 @@ func (b *BindingV2) getHosts() []string {
 }
 
 // GetConsulDto converts a Binding object to a struct that can be PUT to consul HTTP Service
-func (b *BindingV2) GetConsulDto() ConsulDto {
+func (b *Binding) GetConsulDto() ConsulDto {
 	domain := fmt.Sprintf(".%s.%s", b.Service.Metadata.Name, appConfig.ConsulDomain)
 	hosts := b.getHosts()
 	tags := make([]string, len(hosts))
