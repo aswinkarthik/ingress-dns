@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -11,6 +12,8 @@ type Binding struct {
 	Service
 	Ingresses []Ingress
 }
+
+var hostRegexPattern *regexp.Regexp
 
 func init() {
 	hostRegexPattern, _ = regexp.Compile("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$")
@@ -81,6 +84,10 @@ func (b *Binding) GetConsulDto() ConsulDto {
 			counter++
 		}
 	}
+	if debugEnabled {
+		log.Println("Tags that got collected:")
+		prettyPrint(tags)
+	}
 	return ConsulDto{
 		ID:      b.Service.Metadata.Name,
 		Name:    b.Service.Metadata.Name,
@@ -92,6 +99,9 @@ func (b *Binding) GetConsulDto() ConsulDto {
 func isValidHost(host string, domain string) bool {
 	validHost := hostRegexPattern.MatchString(host)
 	hasSameDomain := strings.HasSuffix(host, domain)
+	if debugEnabled {
+		log.Println(fmt.Sprintf("Host %s%s isValid: %t hasSameDomain: %t", host, domain, validHost, hasSameDomain))
+	}
 	return validHost && hasSameDomain
 }
 

@@ -16,4 +16,11 @@ func runWorker() {
 	if debugEnabled {
 		prettyPrint(bindings)
 	}
+
+	for _, b := range bindings {
+		consulDto := b.GetConsulDto()
+		if consulDto.Name != "" {
+			consulClient.Register(consulDto)
+		}
+	}
 }

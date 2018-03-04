@@ -57,6 +57,11 @@ func loadConfig() {
 		port:     appConfig.KubePort,
 		protocol: getProtocol(),
 	}
+
+	consulClient = &ConsulClient{
+		Host: appConfig.ConsulHost,
+		Port: appConfig.ConsulPort,
+	}
 }
 
 func getProtocol() string {
